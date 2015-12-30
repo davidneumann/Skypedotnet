@@ -19,12 +19,21 @@ namespace SkypeDotnet
         private readonly string requestToken;
         private readonly string registrationToken;
         private readonly string messagesHost;
+        private readonly string userName;
+
+        public string UserName
+        {
+            get
+            {
+                return userName;
+            }
+        }
 
         public SkypeClient(string userName, string password)
         {
             if (userName.Contains("@")) throw new NotImplementedException("Microsoft accounts not implemented");
 
-            userName = userName.ToLower();
+            this.userName = userName.ToLower();
             this.httpClient = new HttpClient();
             var md5 = new MD5CryptoServiceProvider();
             var response = this.httpClient.SendPost(SkypeApiUrls.WebLoginUrl,
@@ -32,8 +41,8 @@ namespace SkypeDotnet
                 {
                     scopes = "client",
                     clientVersion = @"0/7.4.85.102/259/",
-                    username = userName,
-                    passwordHash = Convert.ToBase64String(md5.ComputeHash(Encoding.ASCII.GetBytes($"{userName}\nskyper\n{password}")))
+                    username = this.userName,
+                    passwordHash = Convert.ToBase64String(md5.ComputeHash(Encoding.ASCII.GetBytes($"{this.userName}\nskyper\n{password}")))
                 }));
 
             var data = JObject.Parse(response.ResponseData);

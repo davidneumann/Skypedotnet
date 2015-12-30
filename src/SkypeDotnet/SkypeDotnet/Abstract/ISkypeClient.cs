@@ -5,6 +5,8 @@ namespace SkypeDotnet.Abstract
 {
     public interface ISkypeClient
     {
+        string UserName { get; }
+
         SkypeSelfProfile GetSelfProfile();
 
         IEnumerable<SkypeProfile> SearchContacts(string query);

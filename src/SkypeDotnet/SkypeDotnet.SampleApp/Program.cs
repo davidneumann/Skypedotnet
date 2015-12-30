@@ -49,7 +49,7 @@ namespace SkypeDotnet.SampleApp
                         if (msg.ResourceType == "NewMessage")
                         {
                             string from = msg.Resource.From.Substring(msg.Resource.From.LastIndexOf("8:") + 2);
-                            if (from != credentials.UserName)
+                            if (from != client.UserName)
                             {
                                 Console.WriteLine("Message from {0}: {1}", from, msg.Resource.Content);
                                 string conversation = msg.Resource.ConversationLink.Substring(
