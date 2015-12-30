@@ -12,17 +12,13 @@ namespace SkypeDotnet.SampleApp
     {
         static void Main(string[] args)
         {
-            var credentials = new LoginCredentials();
             Console.Write("user: ");
-            credentials.UserName = Console.ReadLine();
+            var UserName = Console.ReadLine();
             Console.Write("pass: ");
-            credentials.Password = SecureReadPassword();
+            var Password = SecureReadPassword();
             Console.WriteLine();
 
-            Abstract.IHttpClient httpClient = new HttpClient();
-            var token = new SkypeLoginManager(httpClient, new SkypeHmacChipher()).Login(credentials);
-
-            Abstract.ISkypeClient client = new SkypeClient(httpClient, token);
+            Abstract.ISkypeClient client = new SkypeClient(UserName, Password);
 
             Console.WriteLine("Fetching friends list");
             var friends = client.GetFriends();

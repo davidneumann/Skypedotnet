@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SkypeDotnet.Abstract;
 using SkypeDotnet.Model;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SkypeDotnet
 {
@@ -18,13 +20,36 @@ namespace SkypeDotnet
         private readonly string registrationToken;
         private readonly string messagesHost;
 
-        public SkypeClient(IHttpClient httpClient, SkypeAuthParams authParams)
+        public SkypeClient(string userName, string password)
         {
-            this.httpClient = httpClient;
-            httpClient.UpdateSharedCustomHeader("X-Skypetoken", authParams.Token);
-            this.requestToken = authParams.Token;
-            this.registrationToken = authParams.RegistrationToken;
-            this.messagesHost = authParams.MessagesHost;
+            if (userName.Contains("@")) throw new NotImplementedException("Microsoft accounts not implemented");
+
+            userName = userName.ToLower();
+            this.httpClient = new HttpClient();
+            var md5 = new MD5CryptoServiceProvider();
+            var response = this.httpClient.SendPost(SkypeApiUrls.WebLoginUrl,
+                JObject.FromObject(new
+                {
+                    scopes = "client",
+                    clientVersion = @"0/7.4.85.102/259/",
+                    username = userName,
+                    passwordHash = Convert.ToBase64String(md5.ComputeHash(Encoding.ASCII.GetBytes($"{userName}\nskyper\n{password}")))
+                }));
+
+            var data = JObject.Parse(response.ResponseData);
+            this.requestToken = data.GetValue("skypetoken").ToString();
+            httpClient.UpdateSharedCustomHeader("X-Skypetoken", requestToken);
+            var expiresin = data.GetValue("expiresIn");
+
+            var endpoints = httpClient.SendPost(SkypeApiUrls.EndpointsUrl, new JObject(), new Dictionary<string, string>
+            {
+                { "Authentication",  $"skypetoken={this.requestToken}"},
+            });
+            var endpointData = endpoints.ResponseHeaders["Set-RegistrationToken"].Split(';');
+            this.registrationToken = endpointData.First(item => item.StartsWith("registrationToken")).Split('=')[1].Trim();
+            var regTokenExpires = endpointData.First(item => item.Trim().StartsWith("expires")).Split('=')[1].Trim();
+            var regTokenId = endpointData.First(item => item.Trim().StartsWith("endpointId")).Split('=')[1].Trim();
+            this.messagesHost = endpoints.ResponseUrl.Host;
         }
 
         public SkypeSelfProfile GetSelfProfile()

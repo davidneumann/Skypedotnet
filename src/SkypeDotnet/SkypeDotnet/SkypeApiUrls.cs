@@ -6,7 +6,7 @@ namespace SkypeDotnet
     public class SkypeApiUrls
     {
 
-        public const string LoginPath = "/login";
+        public const string LoginPath = "/login/skypetoken";
 
         public const string DisplayNamePath = "/users/self/displayname";
 
@@ -32,7 +32,7 @@ namespace SkypeDotnet
 
         public const string MessagesHost = "client-s.gateway.messenger.live.com";
 
-        public const string LoginHost = "login.skype.com";
+        public const string LoginHost = "api.skype.com";
 
         public const string VideomailHost = "vm.skype.com";       
         
