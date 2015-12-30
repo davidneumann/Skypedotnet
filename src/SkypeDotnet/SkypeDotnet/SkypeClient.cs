@@ -55,7 +55,7 @@ namespace SkypeDotnet
                 { "Authentication",  $"skypetoken={this.requestToken}"},
             });
             var endpointData = endpoints.ResponseHeaders["Set-RegistrationToken"].Split(';');
-            this.registrationToken = endpointData.First(item => item.StartsWith("registrationToken")).Split('=')[1].Trim();
+            this.registrationToken = endpointData.First(item => item.StartsWith("registrationToken")).Trim();
             var regTokenExpires = endpointData.First(item => item.Trim().StartsWith("expires")).Split('=')[1].Trim();
             var regTokenId = endpointData.First(item => item.Trim().StartsWith("endpointId")).Split('=')[1].Trim();
             this.messagesHost = endpoints.ResponseUrl.Host;
